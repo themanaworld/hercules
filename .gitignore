@@ -35,6 +35,7 @@ Thumbs.db
 /Makefile.cache
 /map-server
 /mapcache
+/configure
 
 # /plugins -- everything
 /plugins/
