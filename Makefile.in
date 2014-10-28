@@ -144,11 +144,11 @@ docs: tools/doxygen/Makefile
 	@$(MAKE) -C tools/doxygen
 
 import: Makefile
-	@# 1) create conf/import folder
-	@# 2) add missing files
-	@echo "building conf/import folder..."
-	@if test ! -d conf/import ; then mkdir conf/import ; fi
-	@for f in $$(ls conf/import-tmpl) ; do if test ! -e conf/import/$$f ; then cp conf/import-tmpl/$$f conf/import ; fi ; done
+#	@# 1) create conf/import folder
+#	@# 2) add missing files
+#	@echo "building conf/import folder..."
+#	@if test ! -d conf/import ; then mkdir conf/import ; fi
+#	@for f in $$(ls conf/import-tmpl) ; do if test ! -e conf/import/$$f ; then cp conf/import-tmpl/$$f conf/import ; fi ; done
 
 clean buildclean: $(MF_TARGETS)
 	@$(MAKE) -C src/common $@
