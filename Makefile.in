@@ -211,3 +211,10 @@ needs_mysql:
 no_plugins:
 	@echo "Plugins disabled by the configure script"
 	@exit 1
+
+install: all
+	cp -f char-server ../server-data/
+	cp -f login-server ../server-data/
+	cp -f map-server ../server-data/
+	mkdir ../server-data/plugins/ || true
+	cp -f plugins/*.so ../server-data/plugins/
