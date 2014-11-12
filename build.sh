@@ -18,3 +18,4 @@ elif [[ "${CMD}" == "static64" ]]; then
     ./configure --enable-static --disable-lto --enable-packetver=20150000 --enable-debug=gdb
     make -j3
 fi
+exit $?
