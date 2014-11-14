@@ -7,7 +7,7 @@ if [[ -z "${CMD}" ]]; then
 fi
 
 autoreconf
-if [[ "${CMD}" == "defaule" ]]; then
+if [[ "${CMD}" == "default" ]]; then
     ./configure --enable-sanitize --disable-lto --enable-packetver=20150000 --enable-debug=gdb
     make -j3
     make install
