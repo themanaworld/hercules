@@ -7,7 +7,13 @@ if [[ -z "${CMD}" ]]; then
 fi
 
 autoreconf
-if [[ "${CMD}" == "default" ]]; then
+if [[ "${CMD}" == "default" || "${CMD}" == "all" ]]; then
+    ./configure --enable-sanitize --disable-lto --enable-packetver=20150000 --enable-debug=gdb
+    make -j3
+    make install
+    cd src/evol
+    ./build.sh
+elif [[ "${CMD}" == "server" ]]; then
     ./configure --enable-sanitize --disable-lto --enable-packetver=20150000 --enable-debug=gdb
     make -j3
     make install
