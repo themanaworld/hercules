@@ -13,6 +13,12 @@ if [[ "${CMD}" == "default" || "${CMD}" == "all" ]]; then
     make install
     cd src/evol
     ./build.sh
+elif [[ "${CMD}" == "old" ]]; then
+    ./configure --disable-lto --enable-packetver=20150000 --enable-debug=gdb
+    make -j3
+    make install
+    cd src/evol
+    ./build.sh old
 elif [[ "${CMD}" == "server" ]]; then
     ./configure --enable-sanitize --disable-lto --enable-packetver=20150000 --enable-debug=gdb
     make -j3
