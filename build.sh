@@ -19,6 +19,12 @@ elif [[ "${CMD}" == "old" ]]; then
     make install
     cd src/evol
     ./build.sh old
+elif [[ "${CMD}" == "valgrind" ]]; then
+    ./configure --disable-lto --enable-packetver=20150000 --enable-debug=gdb --enable-manager=no
+    make -j3
+    make install
+    cd src/evol
+    ./build.sh old
 elif [[ "${CMD}" == "server" ]]; then
     ./configure --enable-sanitize --disable-lto --enable-packetver=20150000 --enable-debug=gdb
     make -j3
