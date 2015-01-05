@@ -6,7 +6,15 @@ if [[ -z "${CMD}" ]]; then
     export CMD="default"
 fi
 
-export COMMON="--disable-lto --enable-packetver=20150000 --enable-debug=gdb --with-mysql=/usr/bin/mariadb_config"
+if [ -x "/usr/bin/mariadb_config" ]; then
+    export SQL=" --with-mysql=/usr/bin/mariadb_config"
+elif [ -x "/usr/bin/mysql_config" ]; then
+    export SQL=" --with-mysql=/usr/bin/mysql_config"
+else
+    export SQL=""
+fi
+
+export COMMON="--disable-lto --enable-packetver=20150000 --enable-debug=gdb${SQL}"
 
 autoreconf
 if [[ "${CMD}" == "default" || "${CMD}" == "all" ]]; then
