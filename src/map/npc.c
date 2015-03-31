@@ -2096,7 +2096,7 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list) 
 	}
 
 	if( nd->subtype != SHOP ) {
-		if( !(nd->subtype == SCRIPT && nd->u.scr.shop && nd->u.scr.shop->type == NST_ZENY) )
+		if (!(nd->subtype == SCRIPT && nd->u.scr.shop && (nd->u.scr.shop->type == NST_ZENY || nd->u.scr.shop->type == NST_MARKET)))
 			return 1;
 	}
 
