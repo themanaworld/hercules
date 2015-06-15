@@ -51,6 +51,13 @@ print FH <<"EOF";
 #ifndef HPM_DATA_CHECK_H
 #define HPM_DATA_CHECK_H
 
+#if !defined(HERCULES_CORE) && !defined(HPMHOOKGEN)
+HPExport const char *HPM_shared_symbols(int server_type)
+{
+#include "common/HPMSymbols.inc.h"
+	return NULL;
+}
+#endif // ! HERCULES_CORE && ! HPMHOOKGEN
 
 HPExport const struct s_HPMDataCheck HPMDataCheck[] = {
 EOF
