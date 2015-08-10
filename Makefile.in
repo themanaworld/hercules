@@ -223,4 +223,4 @@ install: all
 	cp -f login-server ../server-data/
 	cp -f map-server ../server-data/
 	mkdir ../server-data/plugins/ || true
-	cp -f plugins/*.so ../server-data/plugins/
+	cp -f plugins/*@DLLEXT@ ../server-data/plugins/
