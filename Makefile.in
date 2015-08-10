@@ -197,4 +197,4 @@ install: all
 	cp -f map-server ../server-data/
 	cp -f mapcache ../server-data/
 	mkdir ../server-data/plugins/ || true
-	cp -f plugins/*.so ../server-data/plugins/
+	cp -f plugins/*@DLLEXT@ ../server-data/plugins/
