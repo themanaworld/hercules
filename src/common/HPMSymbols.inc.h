@@ -40,6 +40,9 @@ if ((server_type&(SERVER_TYPE_ALL)) && !HPM_SYMBOL("cmdline", cmdline)) return "
 #ifdef COMMON_CONSOLE_H /* console */
 if ((server_type&(SERVER_TYPE_ALL)) && !HPM_SYMBOL("console", console)) return "console";
 #endif // COMMON_CONSOLE_H
+#ifdef COMMON_CORE_H /* core */
+if ((server_type&(SERVER_TYPE_ALL)) && !HPM_SYMBOL("core", core)) return "core";
+#endif // COMMON_CORE_H
 #ifdef COMMON_DB_H /* DB */
 if ((server_type&(SERVER_TYPE_ALL)) && !HPM_SYMBOL("DB", DB)) return "DB";
 #endif // COMMON_DB_H
