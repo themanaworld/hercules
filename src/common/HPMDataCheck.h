@@ -6,13 +6,16 @@
 #ifndef HPM_DATA_CHECK_H
 #define HPM_DATA_CHECK_H
 
-#if !defined(HERCULES_CORE) && !defined(HPMHOOKGEN)
+#if !defined(HPMHOOKGEN)
 HPExport const char *HPM_shared_symbols(int server_type)
 {
 #include "common/HPMSymbols.inc.h"
 	return NULL;
 }
-#endif // ! HERCULES_CORE && ! HPMHOOKGEN
+#endif // ! HPMHOOKGEN
+#ifdef HPM_SYMBOL
+#undef HPM_SYMBOL
+#endif // HPM_SYMBOL
 
 HPExport const struct s_HPMDataCheck HPMDataCheck[] = {
 	#ifdef CHAR_CHAR_H
