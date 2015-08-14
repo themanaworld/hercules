@@ -14,10 +14,9 @@
 	#define HPExport __attribute__((visibility("default")))
 #endif
 
-#ifdef HERCULES_CORE
 #define HPShared extern
-#else // !HERCULES_CORE
-#define HPShared HPExport
+
+#ifndef HERCULES_CORE
 #include "common/HPMi.h"
 #endif // HERCULES_CORE
 

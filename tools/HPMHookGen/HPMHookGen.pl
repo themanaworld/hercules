@@ -443,12 +443,12 @@ foreach my $servertype (keys %keys) {
 
 	my ($maxlen, $idx) = (0, 0);
 	my $fname;
-	
+
 	if ($servertype eq 'all') {
 		$fname = "../../src/common/HPMSymbols.inc.h";
 		open(FH, ">", $fname)
 			or die "cannot open > $fname: $!";
-		
+
 		print FH <<"EOF";
 // Copyright (c) Hercules Dev Team, licensed under GNU GPL.
 // See the LICENSE file
@@ -456,6 +456,22 @@ foreach my $servertype (keys %keys) {
 // NOTE: This file was auto-generated and should never be manually edited,
 //       as it will get overwritten.
 
+#if !defined(HERCULES_CORE)
+EOF
+
+		foreach my $key (@$keysref) {
+			print FH <<"EOF";
+#ifdef $fileguards{$key}->{guard} /* $key */
+struct $key2original{$key} *$key;
+#endif // $fileguards{$key}->{guard}
+EOF
+		}
+
+		print FH <<"EOF";
+#endif // ! HERCULES_CORE
+
+HPExport const char *HPM_shared_symbols(int server_type)
+{
 EOF
 
 		foreach my $key (@$keysref) {
@@ -465,6 +481,11 @@ if ((server_type&($fileguards{$key}->{type})) && !HPM_SYMBOL("$exportsymbols{$ke
 #endif // $fileguards{$key}->{guard}
 EOF
 		}
+
+		print FH <<"EOF";
+	return NULL;
+}
+EOF
 		close FH;
 		next;
 	}

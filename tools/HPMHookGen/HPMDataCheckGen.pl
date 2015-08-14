@@ -59,11 +59,7 @@ print FH <<"EOF";
 #define HPM_DATA_CHECK_H
 
 #if !defined(HPMHOOKGEN)
-HPExport const char *HPM_shared_symbols(int server_type)
-{
 #include "common/HPMSymbols.inc.h"
-	return NULL;
-}
 #endif // ! HPMHOOKGEN
 #ifdef HPM_SYMBOL
 #undef HPM_SYMBOL
