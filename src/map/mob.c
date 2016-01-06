@@ -114,6 +114,8 @@ struct mob_chat *mob_chat(short id) {
 int mobdb_searchname(const char *str)
 {
 	int i;
+
+	nullpo_ret(str);
 	for(i=0;i<=MAX_MOB_DB;i++){
 		struct mob_db *monster = mob->db(i);
 		if(monster == mob->dummy) //Skip dummy mobs.
@@ -129,10 +131,13 @@ int mobdb_searchname(const char *str)
 	return 0;
 }
 int mobdb_searchname_array_sub(struct mob_db* monster, const char *str, int flag) {
+
+	nullpo_ret(monster);
 	if (monster == mob->dummy)
 		return 1;
 	if(!monster->base_exp && !monster->job_exp && monster->spawn[0].qty < 1)
 		return 1; // Monsters with no base/job exp and no spawn point are, by this criteria, considered "slave mobs" and excluded from search results
+	nullpo_ret(str);
 	if( !flag ) {
 		if(stristr(monster->jname,str))
 			return 0;
@@ -156,6 +161,7 @@ void mvptomb_create(struct mob_data *md, char *killer, time_t time)
 {
 	struct npc_data *nd;
 
+	nullpo_retv(md);
 	if ( md->tomb_nid )
 		mob->mvptomb_destroy(md);
 
@@ -181,6 +187,7 @@ void mvptomb_create(struct mob_data *md, char *killer, time_t time)
 void mvptomb_destroy(struct mob_data *md) {
 	struct npc_data *nd;
 
+	nullpo_retv(md);
 	if ( (nd = map->id2nd(md->tomb_nid)) ) {
 		int16 m, i;
 
@@ -212,6 +219,7 @@ int mobdb_searchname_array(struct mob_db** data, int size, const char *str, int 
 {
 	int count = 0, i;
 	struct mob_db* monster;
+	nullpo_ret(data);
 	for(i=0;i<=MAX_MOB_DB;i++){
 		monster = mob->db(i);
 		if (monster == mob->dummy || mob->is_clone(i) ) //keep clones out (or you leak player stats)
@@ -253,6 +261,7 @@ int mob_parse_dataset(struct spawn_data *data)
 {
 	size_t len;
 
+	nullpo_ret(data);
 	if ((!mob->db_checkid(data->class_) && !mob->is_clone(data->class_)) || !data->num)
 		return 0;
 
@@ -276,6 +285,7 @@ int mob_parse_dataset(struct spawn_data *data)
  *------------------------------------------*/
 struct mob_data* mob_spawn_dataset(struct spawn_data *data) {
 	struct mob_data *md = NULL;
+	nullpo_retr(NULL, data);
 	CREATE(md, struct mob_data, 1);
 	md->bl.id= npc->get_new_npc_id();
 	md->bl.type = BL_MOB;
@@ -328,6 +338,7 @@ int mob_get_random_id(int type, int flag, int lv)
 		ShowError("mob_get_random_id: Invalid type (%d) of random monster.\n", type);
 		return 0;
 	}
+	Assert_ret(type >= 0 && type < MAX_RANDOMMONSTER);
 	do {
 		if (type)
 			class_ = summon[type].class_[rnd()%summon[type].qty];
@@ -624,6 +635,7 @@ int mob_spawn_guardian_sub(int tid, int64 tick, int id, intptr_t data) {
 	return 0;
 }
 
+//++++++++
 /*==========================================
  * Summoning Guardians [Valaris]
  *------------------------------------------*/
