@@ -5151,10 +5151,10 @@ rm -f core conftest.err conftest.$ac_objext \
 if test "$enable_lto" != "no" ; then
 
 	OLD_CFLAGS="$CFLAGS"
-	CFLAGS="$CFLAGS -flto"
+	CFLAGS="$CFLAGS -flto -ffat-lto-objects"
 
 	OLD_LDFLAGS="$LDFLAGS"
-	LDFLAGS="$LDFLAGS -flto"
+	LDFLAGS="$LDFLAGS -flto -ffat-lto-objects"
 
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $CC supports -flto" >&5
 $as_echo_n "checking whether $CC supports -flto... " >&6; }
