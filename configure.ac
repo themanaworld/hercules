@@ -650,10 +650,10 @@ AC_LINK_IFELSE(
 if test "$enable_lto" != "no" ; then
 
 	OLD_CFLAGS="$CFLAGS"
-	CFLAGS="$CFLAGS -flto"
+	CFLAGS="$CFLAGS -flto -ffat-lto-objects"
 
 	OLD_LDFLAGS="$LDFLAGS"
-	LDFLAGS="$LDFLAGS -flto"
+	LDFLAGS="$LDFLAGS -flto -ffat-lto-objects"
 
 	AC_MSG_CHECKING([whether $CC supports -flto])
 	AC_RUN_IFELSE(
