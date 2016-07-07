@@ -83,12 +83,15 @@
 struct script_interface script_s;
 struct script_interface *script;
 
+static inline int GETVALUE(const struct script_buf *buf, int i)  __attribute__((nonnull (1)));
 static inline int GETVALUE(const struct script_buf *buf, int i)
 {
 	Assert_ret(VECTOR_LENGTH(*buf) > i + 2);
 	return (int)MakeDWord(MakeWord(VECTOR_INDEX(*buf, i), VECTOR_INDEX(*buf, i+1)),
 	                      MakeWord(VECTOR_INDEX(*buf, i+2), 0));
 }
+
+static inline void SETVALUE(struct script_buf *buf, int i, int n) __attribute__((nonnull (1)));
 static inline void SETVALUE(struct script_buf *buf, int i, int n)
 {
 	Assert_retv(VECTOR_LENGTH(*buf) > i + 2);
@@ -158,6 +161,7 @@ const char* script_op2name(int op) {
 static void script_dump_stack(struct script_state* st)
 {
 	int i;
+	nullpo_retv(st);
 	ShowMessage("\tstart = %d\n", st->start);
 	ShowMessage("\tend   = %d\n", st->end);
 	ShowMessage("\tdefsp = %d\n", st->stack->defsp);
@@ -200,6 +204,7 @@ static void script_dump_stack(struct script_state* st)
 void script_reportsrc(struct script_state *st) {
 	struct block_list* bl;
 
+	nullpo_retv(st);
 	if( st->oid == 0 )
 		return; //Can't report source.
 
@@ -304,7 +309,7 @@ void script_reportfunc(struct script_state* st)
 /*==========================================
  * Output error message
  *------------------------------------------*/
-static void disp_error_message2(const char *mes,const char *pos,int report) analyzer_noreturn;
+static void disp_error_message2(const char *mes,const char *pos,int report)  __attribute__((nonnull (1))) analyzer_noreturn;
 static void disp_error_message2(const char *mes,const char *pos,int report) {
 	script->error_msg = aStrdup(mes);
 	script->error_pos = pos;
@@ -333,6 +338,7 @@ void check_event(struct script_state *st, const char *evt)
 unsigned int calc_hash(const char* p) {
 	unsigned int h;
 
+	nullpo_ret(p);
 #if defined(SCRIPT_HASH_DJB2)
 	h = 5381;
 	while( *p ) // hash*33 + c
@@ -368,6 +374,7 @@ unsigned int calc_hash_ci(const char* p) {
 	unsigned int h = 0;
 #ifdef ENABLE_CASE_CHECK
 
+	nullpo_ret(p);
 #if defined(SCRIPT_HASH_DJB2)
 	h = 5381;
 	while( *p ) // hash*33 + c
@@ -422,8 +429,10 @@ int script_search_str(const char* p)
 	return -1;
 }
 
-void script_casecheck_clear_sub(struct casecheck_data *ccd) {
+void script_casecheck_clear_sub(struct casecheck_data *ccd)
+{
 #ifdef ENABLE_CASE_CHECK
+	nullpo_retv(ccd);
 	if (ccd->str_data) {
 		aFree(ccd->str_data);
 		ccd->str_data = NULL;
@@ -453,6 +462,7 @@ const char *script_casecheck_add_str_sub(struct casecheck_data *ccd, const char 
 #ifdef ENABLE_CASE_CHECK
 	int len;
 	int h = script->calc_hash_ci(p);
+	nullpo_retr(NULL, ccd);
 	if (ccd->str_hash[h] == 0) {
 		//empty bucket, add new node here
 		ccd->str_hash[h] = ccd->str_num;
@@ -744,7 +754,9 @@ const char* script_skip_space(const char* p)
 /// Skips a word.
 /// A word consists of undercores and/or alphanumeric characters,
 /// and valid variable prefixes/postfixes.
-const char* skip_word(const char* p) {
+const char* skip_word(const char* p)
+{
+	nullpo_retr(NULL, p);
 	// prefix
 	switch( *p ) {
 		case '@':// temporary char variable
@@ -775,6 +787,7 @@ int add_word(const char* p) {
 	size_t len;
 	int i;
 
+	nullpo_retr(0, p);
 	// Check for a word
 	len = script->skip_word(p) - p;
 	if( len == 0 )
@@ -805,6 +818,7 @@ const char* parse_callfunc(const char* p, int require_paren, int is_custom)
 	int func;
 	bool macro = false;
 
+	nullpo_retr(NULL, p);
 	// is need add check for arg null pointer below?
 	func = script->add_word(p);
 	if (script->str_data[func].type == C_FUNC) {
@@ -983,6 +997,7 @@ const char* parse_variable(const char* p)
 	const char *p2 = NULL;
 	const char *var = p;
 
+	nullpo_retr(NULL, p);
 	if( ( p[0] == '+' && p[1] == '+' && (type = C_ADD_PRE, true) ) // pre ++
 	 || ( p[0] == '-' && p[1] == '-' && (type = C_SUB_PRE, true) ) // pre --
 	) {
@@ -1162,8 +1177,11 @@ bool is_number(const char *p) {
  */
 int script_string_dup(char *str)
 {
-	int len = (int)strlen(str);
+	int len;
 	int pos = script->string_list_pos;
+
+	nullpo_retr(pos, str);
+	len = (int)strlen(str);
 
 	while (pos+len+1 >= script->string_list_size) {
 		script->string_list_size += (1024*1024)/2;
@@ -1183,6 +1201,7 @@ const char *parse_simpleexpr(const char *p)
 {
 	p=script->skip_space(p);
 
+	nullpo_retr(NULL, p);
 	if (*p == ';' || *p == ',')
 		disp_error_message("parse_simpleexpr: unexpected end of expression",p);
 	if (*p == '(') {
@@ -1199,6 +1218,7 @@ const char *parse_simpleexpr(const char *p)
 const char *parse_simpleexpr_paren(const char *p)
 {
 	int i = script->syntax.curly_count - 1;
+	nullpo_retr(NULL, p);
 	if (i >= 0 && script->syntax.curly[i].type == TYPE_ARGLIST)
 		++script->syntax.curly[i].count;
 
@@ -1227,6 +1247,7 @@ const char *parse_simpleexpr_number(const char *p)
 	char *np = NULL;
 	long long lli;
 
+	nullpo_retr(NULL, p);
 	while (*p == '0' && ISDIGIT(p[1]))
 		p++; // Skip leading zeros, we don't support octal literals
 
@@ -1247,6 +1268,7 @@ const char *parse_simpleexpr_string(const char *p)
 {
 	const char *start_point = p;
 
+	nullpo_retr(NULL, p);
 	do {
 		p++;
 		while (*p != '\0' && *p != '"') {
@@ -1337,6 +1359,7 @@ void script_add_translatable_string(const struct script_string_buf *string, cons
 {
 	struct string_translation *st = NULL;
 
+	nullpo_retv(string);
 	if (script->syntax.translation_db == NULL
 	 || (st = strdb_get(script->syntax.translation_db, VECTOR_DATA(*string))) == NULL) {
 		script->addc(C_STR);
@@ -1376,6 +1399,7 @@ const char* script_parse_subexpr(const char* p,int limit)
 {
 	int op,opl,len;
 
+	nullpo_retr(NULL, p);
 	p=script->skip_space(p);
 
 	if( *p == '-' ) {
@@ -1441,6 +1465,7 @@ const char* script_parse_subexpr(const char* p,int limit)
  *------------------------------------------*/
 const char* parse_expr(const char *p)
 {
+	nullpo_retr(NULL, p);
 	switch(*p) {
 	case ')': case ';': case ':': case '[': case ']':
 	case '}':
@@ -1457,6 +1482,7 @@ const char* parse_line(const char* p)
 {
 	const char* p2;
 
+	nullpo_retr(NULL, p);
 	p=script->skip_space(p);
 	if(*p==';') {
 		//Close decision for if(); for(); while();
@@ -1517,6 +1543,7 @@ const char* parse_line(const char* p)
 // { ... } Closing process
 const char* parse_curly_close(const char* p)
 {
+	nullpo_retr(NULL, p);
 	if(script->syntax.curly_count <= 0) {
 		disp_error_message("parse_curly_close: unexpected string",p);
 		return p + 1;
@@ -1577,6 +1604,7 @@ const char* parse_syntax(const char* p)
 {
 	const char *p2 = script->skip_word(p);
 
+	nullpo_retr(NULL, p);
 	switch(*p) {
 	case 'B':
 	case 'b':
@@ -2006,6 +2034,7 @@ const char* parse_syntax_close(const char *p) {
 	// If (...) for (...) hoge (); as to make sure closed closed once again
 	int flag;
 
+	nullpo_retr(NULL, p);
 	do {
 		p = script->parse_syntax_close_sub(p,&flag);
 	} while(flag);
@@ -2192,6 +2221,7 @@ bool script_get_constant(const char* name, int* value)
 {
 	int n = script->search_str(name);
 
+	nullpo_retr(false, value);
 	if( n == -1 || script->str_data[n].type != C_INT )
 	{// not found or not a constant
 		return false;
@@ -2391,6 +2421,7 @@ void script_load_parameters(void)
 const char* script_print_line(StringBuf* buf, const char* p, const char* mark, int line)
 {
 	int i, mark_pos = 0, tabstop = TAB_SIZE;
+	nullpo_retr(NULL, p);
 	if( p == NULL || !p[0] ) return NULL;
 	if( line < 0 )
 		StrBuf->Printf(buf, "*%5d: ", -line);         // len = 8
@@ -2706,6 +2737,7 @@ struct script_code* parse_script(const char *src,const char *file,int line,int o
 struct map_session_data *script_rid2sd(struct script_state *st)
 {
 	struct map_session_data *sd;
+	nullpo_retr(NULL, st);
 	if( !( sd = map->id2sd(st->rid) ) ) {
 		ShowError("script_rid2sd: fatal error ! player not attached!\n");
 		script->reportfunc(st);
@@ -2756,6 +2788,7 @@ char *get_val_npcscope_str(struct script_state* st, struct reg_db *n, struct scr
 }
 
 char *get_val_instance_str(struct script_state* st, const char* name, struct script_data* data) {
+	nullpo_retr(NULL, st);
 	if (st->instance_id >= 0) {
 		return (char*)i64db_get(instance->list[st->instance_id].regs.vars, reference_getuid(data));
 	} else {
@@ -2923,6 +2956,7 @@ struct script_data *get_val(struct script_state* st, struct script_data* data) {
 const void *get_val2(struct script_state *st, int64 uid, struct reg_db *ref)
 {
 	struct script_data* data;
+	nullpo_retr(NULL, st);
 	script->push_val(st->stack, C_NAME, uid, ref);
 	data = script_getdatatop(st, -1);
 	script->get_val(st, data);
@@ -2938,8 +2972,11 @@ const void *get_val2(struct script_state *st, int64 uid, struct reg_db *ref)
 void script_array_ensure_zero(struct script_state *st, struct map_session_data *sd, int64 uid, struct reg_db *ref) {
 	const char *name = script->get_str(script_getvarid(uid));
 	// is here st can be null pointer and st->rid is wrong?
-	struct reg_db *src = script->array_src(st, sd ? sd : st->rid ? map->id2sd(st->rid) : NULL, name, ref);
+	struct reg_db *src;
 	bool insert = false;
+
+	nullpo_retv(st);
+	src = script->array_src(st, sd ? sd : st->rid ? map->id2sd(st->rid) : NULL, name, ref);
 
 	if (sd && !st) {
 		/* when sd comes, st isn't available */
@@ -3022,6 +3059,8 @@ int script_free_array_db(union DBKey key, struct DBData *data, va_list ap)
  * Clears script_array and removes it from script->array_db
  **/
 void script_array_delete(struct reg_db *src, struct script_array *sa) {
+	nullpo_retv(src);
+	nullpo_retv(sa);
 	aFree(sa->members);
 	idb_remove(src->arrays, sa->id);
 	ers_free(script->array_ers, sa);
@@ -3034,6 +3073,7 @@ void script_array_delete(struct reg_db *src, struct script_array *sa) {
 void script_array_remove_member(struct reg_db *src, struct script_array *sa, unsigned int idx) {
 	unsigned int i, cursor;
 
+	nullpo_retv(sa);
 	/* its the only member left, no need to do anything other than delete the array data */
 	if( sa->size == 1 ) {
 		script->array_delete(src,sa);
@@ -3058,8 +3098,8 @@ void script_array_remove_member(struct reg_db *src, struct script_array *sa, uns
  * @param idx the index of the array member being inserted
  **/
 void script_array_add_member(struct script_array *sa, unsigned int idx) {
+	nullpo_retv(sa);
 	RECREATE(sa->members, unsigned int, ++sa->size);
-
 	sa->members[sa->size - 1] = idx;
 }
 /**
@@ -3069,11 +3109,13 @@ void script_array_add_member(struct script_array *sa, unsigned int idx) {
 struct reg_db *script_array_src(struct script_state *st, struct map_session_data *sd, const char *name, struct reg_db *ref) {
 	struct reg_db *src = NULL;
 
+	nullpo_retr(NULL, name);
 	switch( name[0] ) {
 		/* from player */
 		default: /* char reg */
 		case '@':/* temp char reg */
 		case '#':/* account reg */
+			nullpo_retr(NULL, sd);
 			src = &sd->regs;
 			break;
 		case '$':/* map reg */
@@ -3086,6 +3128,7 @@ struct reg_db *script_array_src(struct script_state *st, struct map_session_data
 				src = (name[1] == '@') ? &st->stack->scope : &st->script->local;
 			break;
 		case '\'':/* instance */
+			nullpo_retr(NULL, st);
 			if( st->instance_id >= 0 ) {
 				src = &instance->list[st->instance_id].regs;
 			}
@@ -3112,6 +3155,7 @@ void script_array_update(struct reg_db *src, int64 num, bool empty) {
 	int id = script_getvarid(num);
 	unsigned int index = script_getvaridx(num);
 
+	nullpo_retv(src);
 	if (!src->arrays) {
 		src->arrays = idb_alloc(DB_OPT_BASE);
 	} else {
@@ -3151,6 +3195,7 @@ void set_reg_npcscope_str(struct script_state* st, struct reg_db *n, int64 num, 
 {
 	if (n)
 	{
+		nullpo_retv(str);
 		if (str[0]) {
 			i64db_put(n->vars, num, aStrdup(str));
 			if (script_getvaridx(num))
@@ -3180,6 +3225,7 @@ void set_reg_npcscope_num(struct script_state* st, struct reg_db *n, int64 num, 
 
 void set_reg_instance_str(struct script_state* st, int64 num, const char* name, const char *str)
 {
+	nullpo_retv(st);
 	if (st->instance_id >= 0) {
 		if (str[0]) {
 			i64db_put(instance->list[st->instance_id].regs.vars, num, aStrdup(str));
@@ -3198,6 +3244,7 @@ void set_reg_instance_str(struct script_state* st, int64 num, const char* name, 
 
 void set_reg_instance_num(struct script_state* st, int64 num, const char* name, int val)
 {
+	nullpo_retv(st);
 	if (st->instance_id >= 0) {
 		if (val != 0) {
 			i64db_iput(instance->list[st->instance_id].regs.vars, num, val);
@@ -3230,7 +3277,10 @@ void set_reg_instance_num(struct script_state* st, int64 num, const char* name, 
  *------------------------------------------*/
 int set_reg(struct script_state *st, struct map_session_data *sd, int64 num, const char *name, const void *value, struct reg_db *ref)
 {
-	char prefix = name[0];
+	char prefix;
+	nullpo_ret(st);
+	nullpo_ret(name);
+	prefix = name[0];
 
 	if (strlen(name) > SCRIPT_VARNAME_LENGTH) {
 		ShowError("script:set_reg: variable name too long. '%s'\n", name);
@@ -3418,6 +3468,7 @@ int conv_num(struct script_state *st, struct script_data *data)
 
 /// Increases the size of the stack
 void stack_expand(struct script_stack* stack) {
+	nullpo_retv(stack);
 	stack->sp_max += 64;
 	stack->stack_data = (struct script_data*)aRealloc(stack->stack_data,
 			stack->sp_max * sizeof(stack->stack_data[0]) );
@@ -3427,6 +3478,7 @@ void stack_expand(struct script_stack* stack) {
 
 /// Pushes a value into the stack (with reference)
 struct script_data* push_val(struct script_stack* stack, enum c_op type, int64 val, struct reg_db *ref) {
+	nullpo_retr(NULL, stack);
 	if( stack->sp >= stack->sp_max )
 		script->stack_expand(stack);
 	stack->stack_data[stack->sp].type  = type;
@@ -3439,6 +3491,7 @@ struct script_data* push_val(struct script_stack* stack, enum c_op type, int64 v
 /// Pushes a string into the stack
 struct script_data *push_str(struct script_stack *stack, char *str)
 {
+	nullpo_retr(NULL, stack);
 	if( stack->sp >= stack->sp_max )
 		script->stack_expand(stack);
 	stack->stack_data[stack->sp].type  = C_STR;
@@ -3451,6 +3504,7 @@ struct script_data *push_str(struct script_stack *stack, char *str)
 /// Pushes a constant string into the stack
 struct script_data *push_conststr(struct script_stack *stack, const char *str)
 {
+	nullpo_retr(NULL, stack);
 	if( stack->sp >= stack->sp_max )
 		script->stack_expand(stack);
 	stack->stack_data[stack->sp].type  = C_CONSTSTR;
@@ -3462,6 +3516,7 @@ struct script_data *push_conststr(struct script_stack *stack, const char *str)
 
 /// Pushes a retinfo into the stack
 struct script_data* push_retinfo(struct script_stack* stack, struct script_retinfo* ri, struct reg_db *ref) {
+	nullpo_retr(NULL, stack);
 	if( stack->sp >= stack->sp_max )
 		script->stack_expand(stack);
 	stack->stack_data[stack->sp].type = C_RETINFO;
@@ -3473,6 +3528,7 @@ struct script_data* push_retinfo(struct script_stack* stack, struct script_retin
 
 /// Pushes a copy of the target position into the stack
 struct script_data* push_copy(struct script_stack* stack, int pos) {
+	nullpo_retr(NULL, stack);
 	switch( stack->stack_data[pos].type ) {
 		case C_CONSTSTR:
 			return script->push_conststr(stack, stack->stack_data[pos].u.str);
@@ -3497,9 +3553,12 @@ struct script_data* push_copy(struct script_stack* stack, int pos) {
 /// Removes the values in indexes [start,end[ from the stack.
 /// Adjusts all stack pointers.
 void pop_stack(struct script_state* st, int start, int end) {
-	struct script_stack* stack = st->stack;
+	struct script_stack* stack;
 	struct script_data* data;
 	int i;
+
+	nullpo_retv(st);
+	stack = st->stack;
 
 	if( start < 0 )
 		start = 0;
@@ -3636,6 +3695,7 @@ struct script_state* script_alloc_state(struct script_code* rootscript, int pos,
 ///
 /// @param st Script state
 void script_free_state(struct script_state* st) {
+	nullpo_retv(st);
 	if( idb_exists(script->st_db,st->id) ) {
 		struct map_session_data *sd = st->rid ? map->id2sd(st->rid) : NULL;
 
@@ -3697,6 +3757,7 @@ void script_free_state(struct script_state* st) {
  * @param ref[in] Reference to be added.
  */
 void script_add_pending_ref(struct script_state *st, struct reg_db *ref) {
+	nullpo_retv(st);
 	RECREATE(st->pending_refs, struct reg_db*, ++st->pending_ref_count);
 	st->pending_refs[st->pending_ref_count-1] = ref;
 }
@@ -4133,6 +4194,7 @@ int run_func(struct script_state *st)
 	struct script_data* data;
 	int i,start_sp,end_sp,func;
 
+	nullpo_retr(1, st);
 	end_sp = st->stack->sp;// position after the last argument
 	for( i = end_sp-1; i > 0 ; --i )
 		if( st->stack->stack_data[i].type == C_ARG )
@@ -4280,6 +4342,7 @@ int run_script_timer(int tid, int64 tick, int id, intptr_t data) {
 void script_detach_state(struct script_state* st, bool dequeue_event) {
 	struct map_session_data* sd;
 
+	nullpo_retv(st);
 	if(st->rid && (sd = map->id2sd(st->rid))!=NULL) {
 		sd->st = st->bk_st;
 		sd->npc_id = st->bk_npcid;
@@ -4313,6 +4376,7 @@ void script_detach_state(struct script_state* st, bool dequeue_event) {
 void script_attach_state(struct script_state* st) {
 	struct map_session_data* sd;
 
+	nullpo_retv(st);
 	if(st->rid && (sd = map->id2sd(st->rid))!=NULL)
 	{
 		if(st!=sd->st)
@@ -4348,6 +4412,7 @@ void run_script_main(struct script_state *st) {
 	struct script_stack *stack = st->stack;
 	struct npc_data *nd;
 
+	nullpo_retv(st);
 	script->attach_state(st);
 
 	nd = map->id2nd(st->oid);
@@ -4669,6 +4734,7 @@ int script_reg_destroy(union DBKey key, struct DBData *data, va_list ap)
 	}
 	return 0;
 }
+//--------------------------------------------- stop here
 /**
  * Clears a single persistent variable
  **/
