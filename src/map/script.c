@@ -83,12 +83,15 @@
 struct script_interface script_s;
 struct script_interface *script;
 
+static inline int GETVALUE(const struct script_buf *buf, int i)  __attribute__((nonnull (1)));
 static inline int GETVALUE(const struct script_buf *buf, int i)
 {
 	Assert_ret(VECTOR_LENGTH(*buf) > i + 2);
 	return (int)MakeDWord(MakeWord(VECTOR_INDEX(*buf, i), VECTOR_INDEX(*buf, i+1)),
 	                      MakeWord(VECTOR_INDEX(*buf, i+2), 0));
 }
+
+static inline void SETVALUE(struct script_buf *buf, int i, int n) __attribute__((nonnull (1)));
 static inline void SETVALUE(struct script_buf *buf, int i, int n)
 {
 	Assert_retv(VECTOR_LENGTH(*buf) > i + 2);
@@ -158,6 +161,7 @@ const char* script_op2name(int op) {
 static void script_dump_stack(struct script_state* st)
 {
 	int i;
+	nullpo_retv(st);
 	ShowMessage("\tstart = %d\n", st->start);
 	ShowMessage("\tend   = %d\n", st->end);
 	ShowMessage("\tdefsp = %d\n", st->stack->defsp);
@@ -200,6 +204,7 @@ static void script_dump_stack(struct script_state* st)
 void script_reportsrc(struct script_state *st) {
 	struct block_list* bl;
 
+	nullpo_retv(st);
 	if( st->oid == 0 )
 		return; //Can't report source.
 
@@ -304,7 +309,7 @@ void script_reportfunc(struct script_state* st)
 /*==========================================
  * Output error message
  *------------------------------------------*/
-static void disp_error_message2(const char *mes,const char *pos,int report) analyzer_noreturn;
+static void disp_error_message2(const char *mes,const char *pos,int report)  __attribute__((nonnull (1))) analyzer_noreturn;
 static void disp_error_message2(const char *mes,const char *pos,int report) {
 	script->error_msg = aStrdup(mes);
 	script->error_pos = pos;
@@ -333,6 +338,7 @@ void check_event(struct script_state *st, const char *evt)
 unsigned int calc_hash(const char* p) {
 	unsigned int h;
 
+	nullpo_ret(p);
 #if defined(SCRIPT_HASH_DJB2)
 	h = 5381;
 	while( *p ) // hash*33 + c
@@ -368,6 +374,7 @@ unsigned int calc_hash_ci(const char* p) {
 	unsigned int h = 0;
 #ifdef ENABLE_CASE_CHECK
 
+	nullpo_ret(p);
 #if defined(SCRIPT_HASH_DJB2)
 	h = 5381;
 	while( *p ) // hash*33 + c
@@ -422,8 +429,10 @@ int script_search_str(const char* p)
 	return -1;
 }
 
-void script_casecheck_clear_sub(struct casecheck_data *ccd) {
+void script_casecheck_clear_sub(struct casecheck_data *ccd)
+{
 #ifdef ENABLE_CASE_CHECK
+	nullpo_retv(ccd);
 	if (ccd->str_data) {
 		aFree(ccd->str_data);
 		ccd->str_data = NULL;
@@ -453,6 +462,7 @@ const char *script_casecheck_add_str_sub(struct casecheck_data *ccd, const char 
 #ifdef ENABLE_CASE_CHECK
 	int len;
 	int h = script->calc_hash_ci(p);
+	nullpo_retr(NULL, ccd);
 	if (ccd->str_hash[h] == 0) {
 		//empty bucket, add new node here
 		ccd->str_hash[h] = ccd->str_num;
@@ -744,7 +754,9 @@ const char* script_skip_space(const char* p)
 /// Skips a word.
 /// A word consists of undercores and/or alphanumeric characters,
 /// and valid variable prefixes/postfixes.
-const char* skip_word(const char* p) {
+const char* skip_word(const char* p)
+{
+	nullpo_retr(NULL, p);
 	// prefix
 	switch( *p ) {
 		case '@':// temporary char variable
@@ -775,6 +787,7 @@ int add_word(const char* p) {
 	size_t len;
 	int i;
 
+	nullpo_retr(0, p);
 	// Check for a word
 	len = script->skip_word(p) - p;
 	if( len == 0 )
@@ -805,6 +818,7 @@ const char* parse_callfunc(const char* p, int require_paren, int is_custom)
 	int func;
 	bool macro = false;
 
+	nullpo_retr(NULL, p);
 	// is need add check for arg null pointer below?
 	func = script->add_word(p);
 	if (script->str_data[func].type == C_FUNC) {
@@ -929,6 +943,7 @@ const char* parse_callfunc(const char* p, int require_paren, int is_custom)
 /// @param p Script position for error reporting in set_label
 void parse_nextline(bool first, const char* p)
 {
+	nullpo_retv(p);
 	if( !first )
 	{
 		script->addc(C_EOL);  // mark end of line for stack cleanup
@@ -972,6 +987,8 @@ void parse_variable_sub_push(int word, const char *p2)
 		script->addl(word);
 	}
 }
+
+//--------------------------------------------- stop here
 
 /// Parse a variable assignment using the direct equals operator
 /// @param p script position where the function should run from
