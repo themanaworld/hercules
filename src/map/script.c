@@ -83,12 +83,15 @@
 struct script_interface script_s;
 struct script_interface *script;
 
+static inline int GETVALUE(const struct script_buf *buf, int i)  __attribute__((nonnull (1)));
 static inline int GETVALUE(const struct script_buf *buf, int i)
 {
 	Assert_ret(VECTOR_LENGTH(*buf) > i + 2);
 	return (int)MakeDWord(MakeWord(VECTOR_INDEX(*buf, i), VECTOR_INDEX(*buf, i+1)),
 	                      MakeWord(VECTOR_INDEX(*buf, i+2), 0));
 }
+
+static inline void SETVALUE(struct script_buf *buf, int i, int n) __attribute__((nonnull (1)));
 static inline void SETVALUE(struct script_buf *buf, int i, int n)
 {
 	Assert_retv(VECTOR_LENGTH(*buf) > i + 2);
@@ -158,6 +161,7 @@ const char* script_op2name(int op) {
 static void script_dump_stack(struct script_state* st)
 {
 	int i;
+	nullpo_retv(st);
 	ShowMessage("\tstart = %d\n", st->start);
 	ShowMessage("\tend   = %d\n", st->end);
 	ShowMessage("\tdefsp = %d\n", st->stack->defsp);
@@ -200,6 +204,7 @@ static void script_dump_stack(struct script_state* st)
 void script_reportsrc(struct script_state *st) {
 	struct block_list* bl;
 
+	nullpo_retv(st);
 	if( st->oid == 0 )
 		return; //Can't report source.
 
@@ -304,7 +309,7 @@ void script_reportfunc(struct script_state* st)
 /*==========================================
  * Output error message
  *------------------------------------------*/
-static void disp_error_message2(const char *mes,const char *pos,int report) analyzer_noreturn;
+static void disp_error_message2(const char *mes,const char *pos,int report)  __attribute__((nonnull (1))) analyzer_noreturn;
 static void disp_error_message2(const char *mes,const char *pos,int report) {
 	script->error_msg = aStrdup(mes);
 	script->error_pos = pos;
@@ -333,6 +338,7 @@ void check_event(struct script_state *st, const char *evt)
 unsigned int calc_hash(const char* p) {
 	unsigned int h;
 
+	nullpo_ret(p);
 #if defined(SCRIPT_HASH_DJB2)
 	h = 5381;
 	while( *p ) // hash*33 + c
@@ -368,6 +374,7 @@ unsigned int calc_hash_ci(const char* p) {
 	unsigned int h = 0;
 #ifdef ENABLE_CASE_CHECK
 
+	nullpo_ret(p);
 #if defined(SCRIPT_HASH_DJB2)
 	h = 5381;
 	while( *p ) // hash*33 + c
@@ -422,8 +429,10 @@ int script_search_str(const char* p)
 	return -1;
 }
 
-void script_casecheck_clear_sub(struct casecheck_data *ccd) {
+void script_casecheck_clear_sub(struct casecheck_data *ccd)
+{
 #ifdef ENABLE_CASE_CHECK
+	nullpo_retv(ccd);
 	if (ccd->str_data) {
 		aFree(ccd->str_data);
 		ccd->str_data = NULL;
@@ -453,6 +462,7 @@ const char *script_casecheck_add_str_sub(struct casecheck_data *ccd, const char 
 #ifdef ENABLE_CASE_CHECK
 	int len;
 	int h = script->calc_hash_ci(p);
+	nullpo_retr(NULL, ccd);
 	if (ccd->str_hash[h] == 0) {
 		//empty bucket, add new node here
 		ccd->str_hash[h] = ccd->str_num;
@@ -744,7 +754,9 @@ const char* script_skip_space(const char* p)
 /// Skips a word.
 /// A word consists of undercores and/or alphanumeric characters,
 /// and valid variable prefixes/postfixes.
-const char* skip_word(const char* p) {
+const char* skip_word(const char* p)
+{
+	nullpo_retr(NULL, p);
 	// prefix
 	switch( *p ) {
 		case '@':// temporary char variable
@@ -775,6 +787,7 @@ int add_word(const char* p) {
 	size_t len;
 	int i;
 
+	nullpo_retr(0, p);
 	// Check for a word
 	len = script->skip_word(p) - p;
 	if( len == 0 )
@@ -805,6 +818,7 @@ const char* parse_callfunc(const char* p, int require_paren, int is_custom)
 	int func;
 	bool macro = false;
 
+	nullpo_retr(NULL, p);
 	// is need add check for arg null pointer below?
 	func = script->add_word(p);
 	if (script->str_data[func].type == C_FUNC) {
@@ -983,6 +997,7 @@ const char* parse_variable(const char* p)
 	const char *p2 = NULL;
 	const char *var = p;
 
+	nullpo_retr(NULL, p);
 	if( ( p[0] == '+' && p[1] == '+' && (type = C_ADD_PRE, true) ) // pre ++
 	 || ( p[0] == '-' && p[1] == '-' && (type = C_SUB_PRE, true) ) // pre --
 	) {
@@ -1162,8 +1177,11 @@ bool is_number(const char *p) {
  */
 int script_string_dup(char *str)
 {
-	int len = (int)strlen(str);
+	int len;
 	int pos = script->string_list_pos;
+
+	nullpo_retr(pos, str);
+	len = (int)strlen(str);
 
 	while (pos+len+1 >= script->string_list_size) {
 		script->string_list_size += (1024*1024)/2;
@@ -1183,6 +1201,7 @@ const char *parse_simpleexpr(const char *p)
 {
 	p=script->skip_space(p);
 
+	nullpo_retr(NULL, p);
 	if (*p == ';' || *p == ',')
 		disp_error_message("parse_simpleexpr: unexpected end of expression",p);
 	if (*p == '(') {
@@ -1199,6 +1218,7 @@ const char *parse_simpleexpr(const char *p)
 const char *parse_simpleexpr_paren(const char *p)
 {
 	int i = script->syntax.curly_count - 1;
+	nullpo_retr(NULL, p);
 	if (i >= 0 && script->syntax.curly[i].type == TYPE_ARGLIST)
 		++script->syntax.curly[i].count;
 
@@ -1227,6 +1247,7 @@ const char *parse_simpleexpr_number(const char *p)
 	char *np = NULL;
 	long long lli;
 
+	nullpo_retr(NULL, p);
 	while (*p == '0' && ISDIGIT(p[1]))
 		p++; // Skip leading zeros, we don't support octal literals
 
@@ -1247,6 +1268,7 @@ const char *parse_simpleexpr_string(const char *p)
 {
 	const char *start_point = p;
 
+	nullpo_retr(NULL, p);
 	do {
 		p++;
 		while (*p != '\0' && *p != '"') {
@@ -1337,6 +1359,7 @@ void script_add_translatable_string(const struct script_string_buf *string, cons
 {
 	struct string_translation *st = NULL;
 
+	nullpo_retv(string);
 	if (script->syntax.translation_db == NULL
 	 || (st = strdb_get(script->syntax.translation_db, VECTOR_DATA(*string))) == NULL) {
 		script->addc(C_STR);
@@ -1376,6 +1399,7 @@ const char* script_parse_subexpr(const char* p,int limit)
 {
 	int op,opl,len;
 
+	nullpo_retr(NULL, p);
 	p=script->skip_space(p);
 
 	if( *p == '-' ) {
@@ -1441,6 +1465,7 @@ const char* script_parse_subexpr(const char* p,int limit)
  *------------------------------------------*/
 const char* parse_expr(const char *p)
 {
+	nullpo_retr(NULL, p);
 	switch(*p) {
 	case ')': case ';': case ':': case '[': case ']':
 	case '}':
@@ -1457,6 +1482,7 @@ const char* parse_line(const char* p)
 {
 	const char* p2;
 
+	nullpo_retr(NULL, p);
 	p=script->skip_space(p);
 	if(*p==';') {
 		//Close decision for if(); for(); while();
@@ -1517,6 +1543,7 @@ const char* parse_line(const char* p)
 // { ... } Closing process
 const char* parse_curly_close(const char* p)
 {
+	nullpo_retr(NULL, p);
 	if(script->syntax.curly_count <= 0) {
 		disp_error_message("parse_curly_close: unexpected string",p);
 		return p + 1;
@@ -1577,6 +1604,7 @@ const char* parse_syntax(const char* p)
 {
 	const char *p2 = script->skip_word(p);
 
+	nullpo_retr(NULL, p);
 	switch(*p) {
 	case 'B':
 	case 'b':
@@ -2006,6 +2034,7 @@ const char* parse_syntax_close(const char *p) {
 	// If (...) for (...) hoge (); as to make sure closed closed once again
 	int flag;
 
+	nullpo_retr(NULL, p);
 	do {
 		p = script->parse_syntax_close_sub(p,&flag);
 	} while(flag);
@@ -2192,6 +2221,7 @@ bool script_get_constant(const char* name, int* value)
 {
 	int n = script->search_str(name);
 
+	nullpo_retr(false, value);
 	if( n == -1 || script->str_data[n].type != C_INT )
 	{// not found or not a constant
 		return false;
@@ -2203,6 +2233,8 @@ bool script_get_constant(const char* name, int* value)
 
 	return true;
 }
+
+//--------------- stop here
 
 /// Creates new constant or parameter with given value.
 void script_set_constant(const char *name, int value, bool is_parameter, bool is_deprecated)
