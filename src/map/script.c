@@ -83,15 +83,12 @@
 struct script_interface script_s;
 struct script_interface *script;
 
-static inline int GETVALUE(const struct script_buf *buf, int i)  __attribute__((nonnull (1));
 static inline int GETVALUE(const struct script_buf *buf, int i)
 {
 	Assert_ret(VECTOR_LENGTH(*buf) > i + 2);
 	return (int)MakeDWord(MakeWord(VECTOR_INDEX(*buf, i), VECTOR_INDEX(*buf, i+1)),
 	                      MakeWord(VECTOR_INDEX(*buf, i+2), 0));
 }
-
-static inline void SETVALUE(struct script_buf *buf, int i, int n) __attribute__((nonnull (1))
 static inline void SETVALUE(struct script_buf *buf, int i, int n)
 {
 	Assert_retv(VECTOR_LENGTH(*buf) > i + 2);
@@ -161,7 +158,6 @@ const char* script_op2name(int op) {
 static void script_dump_stack(struct script_state* st)
 {
 	int i;
-	nullpo_retv(st);
 	ShowMessage("\tstart = %d\n", st->start);
 	ShowMessage("\tend   = %d\n", st->end);
 	ShowMessage("\tdefsp = %d\n", st->stack->defsp);
@@ -204,7 +200,6 @@ static void script_dump_stack(struct script_state* st)
 void script_reportsrc(struct script_state *st) {
 	struct block_list* bl;
 
-	nullpo_retv(st);
 	if( st->oid == 0 )
 		return; //Can't report source.
 
@@ -309,7 +304,7 @@ void script_reportfunc(struct script_state* st)
 /*==========================================
  * Output error message
  *------------------------------------------*/
-static void disp_error_message2(const char *mes,const char *pos,int report)  __attribute__((nonnull (1))) analyzer_noreturn;
+static void disp_error_message2(const char *mes,const char *pos,int report) analyzer_noreturn;
 static void disp_error_message2(const char *mes,const char *pos,int report) {
 	script->error_msg = aStrdup(mes);
 	script->error_pos = pos;
@@ -338,7 +333,6 @@ void check_event(struct script_state *st, const char *evt)
 unsigned int calc_hash(const char* p) {
 	unsigned int h;
 
-	nullpo_ret(p);
 #if defined(SCRIPT_HASH_DJB2)
 	h = 5381;
 	while( *p ) // hash*33 + c
@@ -374,7 +368,6 @@ unsigned int calc_hash_ci(const char* p) {
 	unsigned int h = 0;
 #ifdef ENABLE_CASE_CHECK
 
-	nullpo_ret(p);
 #if defined(SCRIPT_HASH_DJB2)
 	h = 5381;
 	while( *p ) // hash*33 + c
@@ -429,10 +422,8 @@ int script_search_str(const char* p)
 	return -1;
 }
 
-void script_casecheck_clear_sub(struct casecheck_data *ccd)
-{
+void script_casecheck_clear_sub(struct casecheck_data *ccd) {
 #ifdef ENABLE_CASE_CHECK
-	nullpo_retv(ccd);
 	if (ccd->str_data) {
 		aFree(ccd->str_data);
 		ccd->str_data = NULL;
@@ -462,7 +453,6 @@ const char *script_casecheck_add_str_sub(struct casecheck_data *ccd, const char 
 #ifdef ENABLE_CASE_CHECK
 	int len;
 	int h = script->calc_hash_ci(p);
-	nullpo_retr(NULL, ccd);
 	if (ccd->str_hash[h] == 0) {
 		//empty bucket, add new node here
 		ccd->str_hash[h] = ccd->str_num;
@@ -647,8 +637,6 @@ void add_scripti(int a)
 	}
 	script->addb(a|0x80);
 }
-
-//------------------------ stop here
 
 /**
  * Appends a script->str_data object (label/function/variable/integer) to the script buffer.
