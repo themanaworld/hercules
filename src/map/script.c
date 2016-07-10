@@ -943,7 +943,6 @@ const char* parse_callfunc(const char* p, int require_paren, int is_custom)
 /// @param p Script position for error reporting in set_label
 void parse_nextline(bool first, const char* p)
 {
-	nullpo_retv(p);
 	if( !first )
 	{
 		script->addc(C_EOL);  // mark end of line for stack cleanup
