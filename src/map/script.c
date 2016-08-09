@@ -3278,14 +3278,15 @@ void set_reg_instance_num(struct script_state* st, int64 num, const char* name, 
 int set_reg(struct script_state *st, struct map_session_data *sd, int64 num, const char *name, const void *value, struct reg_db *ref)
 {
 	char prefix;
-	nullpo_ret(st);
 	nullpo_ret(name);
 	prefix = name[0];
 
 	if (strlen(name) > SCRIPT_VARNAME_LENGTH) {
 		ShowError("script:set_reg: variable name too long. '%s'\n", name);
-		script->reportsrc(st);
-		st->state = END;
+		if (st) {
+			script->reportsrc(st);
+			st->state = END;
+		}
 		return 0;
 	}
 
