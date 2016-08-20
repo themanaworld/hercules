@@ -5767,7 +5767,6 @@ int menu_countoptions(const char* str, int max_count, int* total)
 	int bogus_total;
 
 	nullpo_ret(str);
-	nullpo_ret(total);
 	if( total == NULL )
 		total = &bogus_total;
 	++(*total);
