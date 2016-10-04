@@ -162,7 +162,7 @@ clean buildclean: $(MF_TARGETS)
 	@$(MAKE) -C src/tool $@
 	@$(MAKE) -C src/test $@
 	@$(MAKE) -C tools/HPMHookGen $@
-	@$(MAKE) -C tools/doxygen $@
+#	@$(MAKE) -C tools/doxygen $@
 
 distclean: clean
 	@-rm -f $(MF_TARGETS) config.status config.log
