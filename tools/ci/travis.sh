@@ -150,6 +150,7 @@ case "$MODE" in
 		;;
 	build)
 		(cd tools && ./validateinterfaces.py silent) || aborterror "Interface validation error."
+		autoreconf
 		./configure $@ || (cat config.log && aborterror "Configure error, aborting build.")
 		make -j3 || aborterror "Build failed."
 		make plugins -j3 || aborterror "Build failed."
