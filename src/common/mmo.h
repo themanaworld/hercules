@@ -84,7 +84,7 @@
 #if PACKETVER >= 20070227
 // Comment the following like to disable server-side hot-key saving support. [Skotlex]
 // Note that newer clients no longer save hotkeys in the registry!
-#define HOTKEY_SAVING
+//#define HOTKEY_SAVING
 
 #if PACKETVER < 20090603
 	// (27 = 9 skills x 3 bars)               (0x02b9,191)
