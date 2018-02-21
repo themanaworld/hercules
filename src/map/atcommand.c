@@ -10210,6 +10210,8 @@ bool atcommand_exec(const int fd, struct map_session_data *sd, const char *messa
 		return true;
 	}
 
+	// reassign to info is need to avoid use after free [4144]
+	info = atcommand->get_info_byname(atcommand->check_alias(command + 1));
 	if (info->log) /* log only if this command should be logged [Ind/Hercules] */
 		logs->atcommand(sd, is_atcommand ? atcmd_msg : message);
 
