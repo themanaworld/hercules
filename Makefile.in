@@ -223,6 +223,5 @@ install: all
 	cp -f char-server ../server-data/
 	cp -f login-server ../server-data/
 	cp -f map-server ../server-data/
-	cp -f mapcache ../server-data/
 	mkdir ../server-data/plugins/ || true
 	cp -f plugins/*@DLLEXT@ ../server-data/plugins/
