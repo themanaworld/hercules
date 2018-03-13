@@ -24,6 +24,8 @@ COMMON="--enable-packetver=20150513 --enable-debug=gdb${SQL}"
 if [[ "$(uname)" == "FreeBSD" ]]; then
     MAKE=gmake
     export CORES=$(sysctl hw.ncpu | awk '{print $2}')
+elif [[ "$(uname)" == "Darwin" ]]; then
+    export CORES=$(sysctl hw.ncpu | awk '{print $2}')
 else
     COMMON+=" --enable-epoll"
     export CORES=$(cat /proc/cpuinfo|grep processor|wc -l)
