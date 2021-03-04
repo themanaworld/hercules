@@ -47,7 +47,7 @@
 /// (disable by commenting the line)
 ///
 /// leave this line to enable renewal specific support such as renewal formulas
-#define RENEWAL
+//#define RENEWAL
 
 /// renewal cast time
 /// (disable by commenting the line)
@@ -88,7 +88,7 @@
 ///  - it does NOT affect grimtooth
 ///  - weapon and status ATK are increased
 ///  - some skill's damage ratio has modified
-#define RENEWAL_EDP
+//#define RENEWAL_EDP
 
 /// renewal ASPD [malufett]
 ///
@@ -97,7 +97,7 @@
 /// - AGI has a greater factor in ASPD increase
 /// - there is a change in how skills/items give ASPD
 /// - some skill/item ASPD bonuses won't stack
-#define RENEWAL_ASPD
+//#define RENEWAL_ASPD
 
 #endif // DISABLE_RENEWAL
 #undef DISABLE_RENEWAL
