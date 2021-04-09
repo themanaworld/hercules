@@ -27486,7 +27486,7 @@ static void script_parse_builtin(void)
 		BUILDIN_DEF(getskilllist,""),
 		BUILDIN_DEF(clearitem,""),
 		BUILDIN_DEF(classchange,"ii?"),
-		BUILDIN_DEF_DEPRECATED(misceffect,"i"),
+		//BUILDIN_DEF_DEPRECATED(misceffect,"i"),
 		BUILDIN_DEF(playbgm,"s"),
 		BUILDIN_DEF(playbgmall,"s?????"),
 		BUILDIN_DEF(soundeffect,"si"),
